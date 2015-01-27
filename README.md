@@ -1,2 +1,2 @@
 # Face
-A funny LED-face thzt can show different expressions.
+A funny LED-face that can show different expressions.
