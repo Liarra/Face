@@ -9,17 +9,17 @@ int speaker_pin = 3;
 uint8_t speed = 100; // 0.1s time granularity, all time is expressed as a multiple of this
 
 // Behaviour is modelled as a Discrete Time Markov Chain (DTMC) extended with fixed per-state delay
+// TODO: evaluate extending to CTMC plus minimum delay
 struct State {
     uint16_t face;
     uint8_t delay;
     uint8_t sound; // Reserved, index in sounds table
-} state;
-
+};
 struct Transition {
     uint8_t from;
     uint8_t next;
     uint8_t p;
-} transition;
+};
 
 State states[32];
 Transition transitions[64];
@@ -204,22 +204,23 @@ void loop() {
     char input[80];
     if (readyLine(input, sizeof(input))) {
         if (startsWith("face ", input)) {
-            lightFaceFromHex(&input[5]);
+            lightFaceFromHex(input+5);
         } else if (startsWith("on ", input)) { // To remove
-            digitalWrite(led_pins[atoi(&input[2])], LOW);
+            digitalWrite(led_pins[atoi(input+3)], LOW);
         } else if (startsWith("off ", input)) { // To remove
-            digitalWrite(led_pins[atoi(&input[3])], HIGH);
+            digitalWrite(led_pins[atoi(input+4)], HIGH);
         } else if (startsWith("echo", input)) {
             echo = !echo;
         } else if (startsWith("speed ", input)) {
-            speed = strtol(&input[6], NULL, 10);
-        } else if (startsWith("clear", input)) {
+            speed = strtol(input+6, NULL, 10);
+        } else if (startsWith("forget", input)) {
             state_count = 0;
             transition_count = 0;
         } else if (startsWith("reset", input)) {
             asm volatile ("  jmp 0");
         } else {
-            printf("Invalid command. Try face, echo, events, state.\r\n");
+            // TODO: keep this updated!
+            printf("Invalid command. Try face, echo, speed, forget, reset.\r\n");
         }
     }
     faceAdvance();
