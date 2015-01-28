@@ -1,3 +1,5 @@
+import expression
+
 class face_behavior:
 	table={}
 	###{face, {[0.5, face],[0.5, otherface]}}
@@ -19,3 +21,10 @@ fb.add_state(2,{1:0.5, 2:0.5})
 fb.add_state(3,{1:0.5, 2:0.25, 3:0.25})
 
 fb.print_table()
+
+b=face_behavior()
+b.add_state(expression.HAPPY, {expression.HAPPY:0.8, expression.WINK_LEFT:0.1, expression.WINK_RIGHT:0.1})
+b.add_state(expression.WINK_LEFT, {expression.HAPPY:1})
+b.add_state(expression.WINK_RIGHT, {expression.HAPPY:1})
+
+wink_behavior=b
