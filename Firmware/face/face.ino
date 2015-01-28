@@ -72,6 +72,21 @@ bool scanHex(char *pos, uint8_t *buf, uint16_t bytes) {
     }
 }
 
+
+void lightFaceFromHex(char * hexstring){
+	int number = (int)strtol(hexstring, NULL, 16);
+	
+	for(int i=0;i<16;i++){
+		if(number & ( 1<<i)) {
+			digitalWrite(led_pins[i], HIGH);
+		}
+		else{
+			digitalWrite(led_pins[i], LOW);
+		}
+	}
+	
+}
+
 void setup() {
     // Initialize serial and printf
     Serial.begin(9600);
@@ -91,7 +106,8 @@ void loop() {
     uint8_t face[2];
     nextLine(input, 80);
     if (startsWith("face ", input)) {
-        digitalWrite(13, HIGH);
+		
+        //digitalWrite(13, HIGH);
     } else if (startsWith("on ", input)) {
         digitalWrite(led_pins[atoi(&input[2])], LOW);
     } else if (startsWith("off ", input)) {
