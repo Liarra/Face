@@ -1,7 +1,7 @@
 /* Serial-controlled Face */
 
-int led_pins[16] = {5,6,8,9,10,11,12,13,A0,A1,A2,A3,A4,A5,A6,A7};
-int button_pins[3] = {2,4,7};
+int led_pins[16] = {4,5,6,7,8,9,10,11,12,13,A0,A1,A2,A3,A4,A5};
+int button_pins[3] = {2,A6,A7};
 int speaker_pin = 3;
 
 
@@ -64,22 +64,38 @@ bool startsWith(char *pat, char *str) {
     return pat[i]==0;
 }
 
+bool scanHex(char *pos, uint8_t *buf, uint16_t bytes) {
+    /* WARNING: no sanitization or error-checking whatsoever */
+    for(int i=0; i<bytes; i++) {
+        sscanf(pos, "%2hhx", &buf[i]);
+        pos += 2 * sizeof(char);
+    }
+}
+
 void setup() {
     // Initialize serial and printf
     Serial.begin(9600);
     fdev_setup_stream(&uartout, uart_putchar, NULL, _FDEV_SETUP_WRITE);
     stdout = &uartout;
+    
+    for (int i=0; i<16; i++) {
+        pinMode(led_pins[i], OUTPUT);
+        digitalWrite(led_pins[i], LOW);
+    }
 }
 
 void loop() {
     char input[80];
     double freq;
     char freq_s[20];
+    uint8_t face[2];
     nextLine(input, 80);
-    if (startsWith("face 0x", input)) {
+    if (startsWith("face ", input)) {
         digitalWrite(13, HIGH);
-    } else if (startsWith("face ", input)) {
-    } else if (startsWith("face", input)) {
+    } else if (startsWith("on ", input)) {
+        digitalWrite(led_pins[atoi(&input[2])], LOW);
+    } else if (startsWith("off ", input)) {
+        digitalWrite(led_pins[atoi(&input[3])], HIGH);
     } else if (startsWith("echo", input)) {
         echo = !echo;
     } else if (startsWith("events", input)) {
