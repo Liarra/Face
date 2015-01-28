@@ -4,6 +4,22 @@ int led_pins[16] = {4,5,6,7,8,9,10,11,12,13,A0,A1,A2,A3,A4,A5};
 int button_pins[3] = {2,A6,A7};
 int speaker_pin = 3;
 
+uint8_t speed = 100; // 0.1s time granularity, all time is expressed as a multiple of this
+
+struct State {
+    uint16_t face;
+    uint8_t delay;
+    uint8_t sound;
+};
+
+struct Transition {
+    uint8_t from;
+    uint8_t p;
+    uint8_t next;
+};
+
+State states[32];
+Transition transitions[64];
 
 
 
