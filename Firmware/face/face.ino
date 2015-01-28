@@ -83,8 +83,7 @@ void lightFaceFromHex(char * hexstring){
 		else{
 			digitalWrite(led_pins[i], LOW);
 		}
-	}
-	
+	}	
 }
 
 void setup() {
@@ -106,7 +105,7 @@ void loop() {
     uint8_t face[2];
     nextLine(input, 80);
     if (startsWith("face ", input)) {
-		
+		lightFaceFromHex(&input[5]);
         //digitalWrite(13, HIGH);
     } else if (startsWith("on ", input)) {
         digitalWrite(led_pins[atoi(&input[2])], LOW);
