@@ -1,6 +1,6 @@
 /* Serial-controlled Face */
 
-int led_pins[16] = {4,5,6,7,8,9,10,11,12,13,A0,A1,A2,A3,A4,A5};
+int led_pins[16] = {8, A0,A2,A3,A1,6, 5, 11,10,9, A5,A4,4, 7, 13,12};
 int button_pins[3] = {2,A6,A7};
 int speaker_pin = 3;
 
@@ -10,17 +10,23 @@ struct State {
     uint16_t face;
     uint8_t delay;
     uint8_t sound;
-};
+} state;
 
 struct Transition {
     uint8_t from;
     uint8_t p;
     uint8_t next;
-};
+} transition;
 
 State states[32];
 Transition transitions[64];
+uint8_t state_count = 0;
+uint8_t transition_count = 0;
 
+void next_state(void) {
+    static uint8_t delay;
+    uint8_t cur_state = 0;
+}
 
 
 
@@ -116,8 +122,9 @@ void loop() {
         echo = !echo;
     } else if (startsWith("events", input)) {
         digitalWrite(13, LOW);
-    } else if (startsWith("state", input)) {
-        
+    } else if (startsWith("clear", input)) {
+        state_count = 0;
+        transition_count = 0;
     } else if (startsWith("reset", input)) {
         asm volatile ("  jmp 0");
     } else {
