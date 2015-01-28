@@ -1,19 +1,11 @@
 import serial
-from enum import Enum, unique
+from time import sleep
+
+import expression
 
 class face_communicator:
 	predefined_faces_limit=1000
 	port="/dev/ttyUSB0"
-	
-	@unique
-	class expression(Enum):
-		HAPPY		=1
-		SAD			=2
-		WINK_LEFT	=3
-		WINK_RIGHT	=4
-		SLEEP		=5
-		SURPRISED	=6
-	
 	
 	
 	def __init__(self, port="/dev/ttyUSB0"):
@@ -23,9 +15,7 @@ class face_communicator:
 		string_to_send="face "
 		if not identifier:
 			raise TypeError("Identifier cannot be empty!")
-			
-			
-			
+					
 		if isinstance(identifier, str):
 			string_to_send=string_to_send+identifier
 		
@@ -55,10 +45,21 @@ class face_communicator:
 fc=face_communicator()
 
 
+
+fc.send_string_to_serial("off 15")
+fc.send_string_to_serial("off 13")
+sleep(2)
+fc.send_string_to_serial("off 2")
+fc.send_string_to_serial("off 1")
+
+
+
+'''
 fc.send_face(100);
 fc.send_face(10500);
 fc.send_face("0.0");
 fc.send_face(face_communicator.expression.HAPPY);
-fc.send_face(face_communicator.expression.SLEEP);
+fc.send_face(face_communicator.expression.SLEEP);'''
+
 #face_communicator("pooooort").send_face(1222424242);
 
