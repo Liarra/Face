@@ -1,5 +1,4 @@
 /* Serial-controlled Face */
-
 #define debug true
 
 int led_pins[16] = {8,A0,A2,A3,A1,6,5,11,10,9,A5,A4,4,7,13,12};
@@ -153,17 +152,37 @@ bool scanHex(char *pos, uint8_t *buf, uint16_t bytes) {
 }
 
 
+void addStateFromString(char * stateString){
+	char * face;
+	char * duration;
+	char * sound;
+	face = strtok (stateString, " ");
+	duration = strtok (NULL, " ");
+	sound = strtok (NULL, " ");
+	
+	State newstate={(int)strtol(face, NULL, 16),atoi(duration),atoi(sound)};
+	states[state_count]=newstate;
+	state_count=(state_count+1)%32;
+}
+
+void addTransitionFromString(char * transString){
+	char * face1;
+	char * percent;
+	char * face2;
+	face1 = strtok (transString, " ");
+	percent = strtok (NULL, " ");
+	face2 = strtok (NULL, " ");
+	
+	Transition newtrans={(int)strtol(face1, NULL, 16),atoi(percent),(int)strtol(face2, NULL, 16)};
+	transitions[transition_count]=newtrans;
+	transition_count=(transition_count+1)%64;
+}
+
+
 void lightFaceFromHex(char * hexstring){
     int number = (int)strtol(hexstring, NULL, 16);
     
-    for(int i=0;i<16;i++){
-        if(number & ( 1<<i)) {
-            digitalWrite(led_pins[i], LOW);
-        }
-        else{
-            digitalWrite(led_pins[i], HIGH);
-        }
-    }
+    faceOutput(number);
 }
 
 void setup() {
@@ -216,7 +235,15 @@ void loop() {
         } else if (startsWith("forget", input)) {
             state_count = 0;
             transition_count = 0;
-        } else if (startsWith("reset", input)) {
+        } 
+        else if (startsWith("trans", input)) {
+            addTransitionFromString(input+6);
+        }
+        
+        else if (startsWith("state", input)) {
+            addStateFromString(input+6);
+        }
+        else if (startsWith("reset", input)) {
             asm volatile ("  jmp 0");
         } else {
             // TODO: keep this updated!
