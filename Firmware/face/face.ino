@@ -168,7 +168,7 @@ bool scanHex(char *pos, uint8_t *buf, uint16_t bytes) {
     }
 }
 
-// Get the next token from the string to be parsed
+// Get the next token from the current string
 #define token() strtok(NULL, " ")
 
 
@@ -186,18 +186,16 @@ void commandFace(void) {
 }
 
 uint8_t commandState(void){
-    char *face, *duration, *sound;
-    face = token();
-    duration = token();
-    sound = token();
+    char *face = token();
+    char *duration = token();
+    char *sound = token();
     return faceAddState(strtol(face, NULL, 16), atoi(duration), atoi(sound));
 }
 
 uint8_t commandTrans(void){
-    char *state1, *state2, *prob;
-    state1 = token();
-    state2 = token();
-    prob = token();
+    char *state1 = token();
+    char *state2 = token();
+    char *prob = token();
     return faceAddTransition(atoi(state1), atoi(state2), atoi(prob));
 }
 
