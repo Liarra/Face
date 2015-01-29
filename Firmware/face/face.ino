@@ -178,14 +178,14 @@ void addStateFromString(char * stateString){
 }
 
 void addTransitionFromString(char * transString){
-	char * face1;
-	char * percent;
-	char * face2;
-	face1 = strtok (transString, " ");
-	percent = strtok (NULL, " ");
-	face2 = strtok (NULL, " ");
+	char * state1;
+	char * state2;
+	char * prob;
+	state1 = strtok (transString, " ");
+	state2 = strtok (NULL, " ");
+	prob = strtok (NULL, " ");
 	
-	Transition newtrans={atoi(face1),atoi(percent),atoi(face2)};
+	Transition newtrans={atoi(state1),atoi(state2),atoi(prob)};
 	transitions[transition_count]=newtrans;
 	transition_count=(transition_count+1)%64;
 }
@@ -232,6 +232,8 @@ void setup() {
 void loop() {
     char input[80];
     if (readyLine(input, sizeof(input))) {
+        //~ char *cmd;
+        //~ cmd = strtok(input);
         if (startsWith("face ", input)) {
             lightFaceFromHex(input+5);
         } else if (startsWith("on ", input)) { // To remove
