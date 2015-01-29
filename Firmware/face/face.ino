@@ -185,7 +185,7 @@ void addTransitionFromString(char * transString){
 	percent = strtok (NULL, " ");
 	face2 = strtok (NULL, " ");
 	
-	Transition newtrans={(int)strtol(face1, NULL, 16),atoi(percent),(int)strtol(face2, NULL, 16)};
+	Transition newtrans={atoi(face1),atoi(percent),atoi(face2)};
 	transitions[transition_count]=newtrans;
 	transition_count=(transition_count+1)%64;
 }
