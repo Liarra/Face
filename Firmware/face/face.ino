@@ -87,7 +87,9 @@ uint8_t faceAddTransition(uint8_t from, uint8_t next, uint8_t p) {
     return transition_count++;
 }
 
+
 /* User serial interface */
+
 bool echo = true;
 int readLine(int readch, char *buffer, int len) {
     // Process input one readch at a time
@@ -147,6 +149,9 @@ static int uartPutchar(char c, FILE *stream) {
     return 0;
 }
 
+
+/* Utility functions */
+
 bool startsWith(char *pat, char *str) {
     // true iff str starts with pat
     int i = 0;
@@ -164,38 +169,37 @@ bool scanHex(char *pos, uint8_t *buf, uint16_t bytes) {
 }
 
 
-void addStateFromString(char * stateString){
-	char * face;
-	char * duration;
-	char * sound;
-	face = strtok (stateString, " ");
-	duration = strtok (NULL, " ");
-	sound = strtok (NULL, " ");
-	
-	State newstate={(int)strtol(face, NULL, 16),atoi(duration),atoi(sound)};
-	states[state_count]=newstate;
-	state_count=(state_count+1)%32;
+/* Commands given over serial interface */
+
+void commandFace(void) {
+    char *arg1 = strtok(NULL, " ");
+    uint16_t face;
+    if (strlen(arg1) == 16) {
+        face = strtol(arg1, NULL, 2);
+    } else {
+        face = strtol(arg1, NULL, 16);
+    }
+    faceOutput(face);
 }
 
-void addTransitionFromString(char * transString){
-	char * state1;
-	char * state2;
-	char * prob;
-	state1 = strtok (transString, " ");
-	state2 = strtok (NULL, " ");
-	prob = strtok (NULL, " ");
-	
-	Transition newtrans={atoi(state1),atoi(state2),atoi(prob)};
-	transitions[transition_count]=newtrans;
-	transition_count=(transition_count+1)%64;
+uint8_t commandState(void){
+    char *face, *duration, *sound;
+    face = strtok(NULL, " ");
+    duration = strtok(NULL, " ");
+    sound = strtok(NULL, " ");
+    return faceAddState(strtol(face, NULL, 16), atoi(duration), atoi(sound));
+}
+
+uint8_t commandTrans(void){
+    char *state1, *state2, *prob;
+    state1 = strtok(NULL, " ");
+    state2 = strtok(NULL, " ");
+    prob = strtok(NULL, " ");
+    return faceAddTransition(atoi(state1), atoi(state2), atoi(prob));
 }
 
 
-void lightFaceFromHex(char * hexstring){
-    int number = (int)strtol(hexstring, NULL, 16);
-    
-    faceOutput(number);
-}
+/* Main program logic */
 
 void setup() {
     // Initialize serial and printf
@@ -232,30 +236,24 @@ void setup() {
 void loop() {
     char input[80];
     if (readyLine(input, sizeof(input))) {
-        //~ char *cmd;
-        //~ cmd = strtok(input);
-        if (startsWith("face ", input)) {
-            lightFaceFromHex(input+5);
-        } else if (startsWith("on ", input)) { // To remove
-            digitalWrite(led_pins[atoi(input+3)], LOW);
-        } else if (startsWith("off ", input)) { // To remove
-            digitalWrite(led_pins[atoi(input+4)], HIGH);
-        } else if (startsWith("echo", input)) {
-            echo = !echo;
-        } else if (startsWith("speed ", input)) {
-            speed = strtol(input+6, NULL, 10);
-        } else if (startsWith("forget", input)) {
+        char *cmd;
+        cmd = strtok(input, " ");
+        if (strcmp("face", cmd)==0) {
+            commandFace();
+        } else if (strcmp("trans", cmd)==0) {
+            commandTrans();
+        } else if (strcmp("state", cmd)==0) {
+            commandState();
+        } else if (strcmp("forget", cmd)==0) {
             state_count = 0;
             transition_count = 0;
-        } 
-        else if (startsWith("trans", input)) {
-            addTransitionFromString(input+6);
-        }
-        
-        else if (startsWith("state", input)) {
-            addStateFromString(input+6);
-        }
-        else if (startsWith("reset", input)) {
+        //~ } else if (strcmp("", cmd)==0) {
+            //~ docmd
+        } else if (strcmp("speed", cmd)==0) {
+            speed = strtol(strtok(NULL, " "), NULL, 10);
+        } else if (strcmp("echo", cmd)==0) {
+            echo = !echo;
+        } else if (strcmp("reset", cmd)==0) {
             asm volatile ("  jmp 0");
         } else {
             // TODO: keep this updated!
