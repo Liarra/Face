@@ -76,6 +76,17 @@ void faceOutput(uint16_t face) {
     }
 }
 
+uint8_t faceAddState(uint16_t face, uint8_t delay=1, uint8_t sound=0) {
+    if (state_count >= sizeof(states)) return 255;
+    states[state_count] = {face, delay, sound};
+    return state_count++;
+}
+uint8_t faceAddTransition(uint8_t from, uint8_t next, uint8_t p) {
+    if (transition_count >= sizeof(transitions)) return 255;
+    transitions[transition_count] = {from, next, p};
+    return transition_count++;
+}
+
 /* User serial interface */
 bool echo = true;
 int readLine(int readch, char *buffer, int len) {
@@ -189,14 +200,12 @@ void setup() {
     } //*/
     
     // Test initial behaviour
-    states[0] = {0b1101000001101011, 10, 0};
-    states[1] = {0b1001000110010101, 10, 0};
-    state_count=2;
-    transitions[0] = {0, 1, 30};
-    transitions[1] = {1, 0, 10};
-    transitions[2] = {0, 0, 10};
-    transitions[3] = {1, 1, 10};
-    transition_count=4;
+    uint8_t a = faceAddState(0b1101000001101011, 10, 0);
+    uint8_t b = faceAddState(0b1001000110010101, 10, 0);
+    faceAddTransition(a, b, 30);
+    faceAddTransition(b, a, 10);
+    faceAddTransition(a, a, 10);
+    faceAddTransition(b, b, 10);
     // */
 }
 
