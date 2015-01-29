@@ -168,11 +168,14 @@ bool scanHex(char *pos, uint8_t *buf, uint16_t bytes) {
     }
 }
 
+// Get the next token from the string to be parsed
+#define token() strtok(NULL, " ")
+
 
 /* Commands given over serial interface */
 
 void commandFace(void) {
-    char *arg1 = strtok(NULL, " ");
+    char *arg1 = token();
     uint16_t face;
     if (strlen(arg1) == 16) {
         face = strtol(arg1, NULL, 2);
@@ -184,17 +187,17 @@ void commandFace(void) {
 
 uint8_t commandState(void){
     char *face, *duration, *sound;
-    face = strtok(NULL, " ");
-    duration = strtok(NULL, " ");
-    sound = strtok(NULL, " ");
+    face = token();
+    duration = token();
+    sound = token();
     return faceAddState(strtol(face, NULL, 16), atoi(duration), atoi(sound));
 }
 
 uint8_t commandTrans(void){
     char *state1, *state2, *prob;
-    state1 = strtok(NULL, " ");
-    state2 = strtok(NULL, " ");
-    prob = strtok(NULL, " ");
+    state1 = token();
+    state2 = token();
+    prob = token();
     return faceAddTransition(atoi(state1), atoi(state2), atoi(prob));
 }
 
@@ -250,7 +253,7 @@ void loop() {
         //~ } else if (strcmp("", cmd)==0) {
             //~ docmd
         } else if (strcmp("speed", cmd)==0) {
-            speed = strtol(strtok(NULL, " "), NULL, 10);
+            speed = strtol(token(), NULL, 10);
         } else if (strcmp("echo", cmd)==0) {
             echo = !echo;
         } else if (strcmp("reset", cmd)==0) {
