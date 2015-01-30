@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
 from Tkinter import *
-from ttk import Frame, Style
+from ttk import Frame
 
 class FaceEditor(Frame):
     def __init__(self, parent):
@@ -10,9 +10,7 @@ class FaceEditor(Frame):
 
         self.parent.title("Face Editor")
         self.pack(fill=BOTH, expand=1)
-
-        style = Style()
-        style.configure("TFrame")
+        self.face = Frame(self)
 
         state = [IntVar() for _ in range(16)]
         self.state = state
@@ -36,8 +34,6 @@ class FaceEditor(Frame):
             [(7,16),(9,16)],
         ]
         
-        self.face = Frame(self)
-        
         buttons = []
         for i in range(16):
             for x, y in leds[i]:
@@ -48,31 +44,33 @@ class FaceEditor(Frame):
         
         self.face.pack(fill=BOTH, expand=1)
 
-        self.binvalue = Text(self, state=DISABLED, width=17, height=1, wrap=NONE)
-        self.binvalue.pack(side=RIGHT, padx=8)
-        self.hexvalue = Text(self, state=DISABLED, width=5, height=1, wrap=NONE)
-        self.hexvalue.pack(side=RIGHT, padx=8)
+        self.binvalue = Text(self, state=DISABLED, width=16, height=1, wrap=NONE)
+        self.binvalue.pack(side=RIGHT, padx=5)
+        self.hexvalue = Text(self, state=DISABLED, width=4, height=1, wrap=NONE)
+        self.hexvalue.pack(side=LEFT, padx=5)
         
         self.recompute()
-
 
     def recompute(self):
         value = 0
         for i, var in enumerate(self.state):
             value += 2**i if var.get()==1 else 0
+        binvalue = bin(value)[2:].zfill(16)
+        hexvalue = hex(value)[2:].zfill(4)
         self.value = value
         self.binvalue.config(state=NORMAL, background="white")
         self.binvalue.delete(1.0, END)
-        self.binvalue.insert(END, bin(value)[2:].zfill(16))
+        self.binvalue.insert(END, binvalue)
         self.binvalue.config(state=DISABLED)
         self.hexvalue.config(state=NORMAL, background="white")
         self.hexvalue.delete(1.0, END)
-        self.hexvalue.insert(END, hex(value)[2:].zfill(4))
+        self.hexvalue.insert(END, hexvalue)
         self.hexvalue.config(state=DISABLED)
+        print binvalue, hexvalue
 
 def run():
     root = Tk()
-    root.geometry("190x220")
+    root.geometry("190x210")
     app = FaceEditor(root)
     root.mainloop()
 
