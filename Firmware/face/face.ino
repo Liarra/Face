@@ -76,12 +76,12 @@ void faceOutput(uint16_t face) {
     }
 }
 
-uint8_t faceAddState(uint16_t face, uint8_t delay=1, uint8_t sound=0) {
+uint8_t addState(uint16_t face, uint8_t delay=1, uint8_t sound=0) {
     if (state_count >= sizeof(states)) return 255;
     states[state_count] = {face, delay, sound};
     return state_count++;
 }
-uint8_t faceAddTransition(uint8_t from, uint8_t next, uint8_t p) {
+uint8_t addTrans(uint8_t from, uint8_t next, uint8_t p) {
     if (transition_count >= sizeof(transitions)) return 255;
     transitions[transition_count] = {from, next, p};
     return transition_count++;
@@ -189,14 +189,14 @@ uint8_t commandState(void){
     char *face = token();
     char *duration = token();
     char *sound = token();
-    return faceAddState(strtol(face, NULL, 16), atoi(duration), atoi(sound));
+    return addState(strtol(face, NULL, 16), atoi(duration), atoi(sound));
 }
 
 uint8_t commandTrans(void){
     char *state1 = token();
     char *state2 = token();
     char *prob = token();
-    return faceAddTransition(atoi(state1), atoi(state2), atoi(prob));
+    return addTrans(atoi(state1), atoi(state2), atoi(prob));
 }
 
 
@@ -223,12 +223,34 @@ void setup() {
     } //*/
     
     // Test initial behaviour
-    uint8_t a = faceAddState(0b1101000001101011, 10, 0);
-    uint8_t b = faceAddState(0b1001000110010101, 10, 0);
-    faceAddTransition(a, b, 30);
-    faceAddTransition(b, a, 10);
-    faceAddTransition(a, a, 10);
-    faceAddTransition(b, b, 10);
+    uint8_t base = addState(0xc871, 10, 0);
+    addTrans(base, base, 100);
+    uint8_t sad = addState(0x5075, 20, 0);
+    addTrans(base, sad, 5);
+    addTrans(sad, base, 10);
+    uint8_t taunt = addState(0x996b, 10, 0);
+    addTrans(base, taunt, 10);
+    addTrans(taunt, base, 10);
+    uint8_t wink = addState(0xc843, 5, 0);
+    addTrans(base, wink, 10);
+    addTrans(wink, base, 10);
+    uint8_t sing1 = addState(0xd871, 2, 0);
+    uint8_t sing2 = addState(0xd071, 2, 0);
+    uint8_t sing3 = addState(0x9071, 2, 0);
+    addTrans(base, sing1, 10);
+    addTrans(sing1, base, 3);
+    addTrans(sing1, sing2, 10);
+    addTrans(sing2, sing1, 10);
+    addTrans(sing2, sing3, 10);
+    addTrans(sing3, sing2, 10);
+    uint8_t eyes1 = addState(0xc991, 3, 0);
+    uint8_t eyes2 = addState(0xcb11, 3, 0);
+    addTrans(base, eyes1, 10);
+    addTrans(base, eyes2, 10);
+    addTrans(eyes1, eyes2, 10);
+    addTrans(eyes2, eyes1, 10);
+    addTrans(eyes2, base, 5);
+    addTrans(eyes1, base, 5);
     // */
 }
 
