@@ -2,7 +2,7 @@
 
 #define debug true
 
-int led_pins[16] = {8,A0,A2,A3,A1,6,5,11,10,9,A5,A4,4,7,13,12};
+int led_pins[16] = {8,A0,A2,A3,A1,6,5,11,13,9,A5,A4,4,7,10,12};
 int button_pins[3] = {2,A6,A7};
 int speaker_pin = 3;
 
@@ -209,12 +209,10 @@ void setup() {
     stdout = &uartout;
     
     for (int i=0; i<16; i++) {
-        pinMode(led_pins[i], OUTPUT);
         digitalWrite(led_pins[i], HIGH); // All off
+        pinMode(led_pins[i], OUTPUT);
     }
 
-    faceOutput(states[0].face);
-    
     /*/ Test segments
     int i=0;
     while (1) {
