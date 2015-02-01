@@ -2,9 +2,9 @@
 
 #define debug true
 
-int led_pins[16] = {8,A0,A2,A3,A1,6,5,11,13,9,A5,A4,4,7,10,12};
-int button_pins[3] = {2,A6,A7};
-int speaker_pin = 3;
+const int led_pins[16] = {8,A0,A2,A3,A1,6,5,11,13,9,A5,A4,4,7,10,12};
+const int button_pins[3] = {2,A6,A7};
+const int speaker_pin = 3;
 
 uint8_t speed = 100; // 0.1s time granularity, all time is expressed as a multiple of this
 
@@ -88,6 +88,33 @@ uint8_t addTrans(uint8_t from, uint8_t next, uint8_t p) {
 }
 
 
+long buttonTime = 0;
+int buttonState = HIGH;
+
+bool buttonCheck() {
+    int reading = digitalRead(button_pins[0]);
+    if (reading == buttonState)
+        buttonTime = millis();
+    if ((millis() - buttonTime) > 50)
+        if (buttonState==HIGH) {
+            buttonState = LOW;
+            return true;
+        } else {
+            buttonState = HIGH;
+        }
+    return false;
+}
+
+bool buttonPoll() {
+    buttonTime = millis();
+    for (int i=100; i>0; i--) {
+        if (buttonCheck())
+            return true;
+        delay(1);
+    }
+    return false;
+}
+
 /* User serial interface */
 
 bool echo = true;
@@ -170,6 +197,9 @@ bool scanHex(char *pos, uint8_t *buf, uint16_t bytes) {
 
 // Get the next token from the current string
 #define token() strtok(NULL, " ")
+
+// compare buffer to one in PROGMEM
+#define matches(a, b) strcmp_P(a, PSTR(b))==0
 
 
 /* Commands given over serial interface */
@@ -259,28 +289,32 @@ void loop() {
     if (readyLine(input, sizeof(input))) {
         char *cmd;
         cmd = strtok(input, " ");
-        if (strcmp("face", cmd)==0) {
+        if (matches(cmd, "face")) {
             commandFace();
-        } else if (strcmp("trans", cmd)==0) {
+        } else if (matches(cmd, "trans")) {
             commandTrans();
-        } else if (strcmp("state", cmd)==0) {
+        } else if (matches(cmd, "state")) {
             commandState();
-        } else if (strcmp("forget", cmd)==0) {
+        } else if (matches(cmd, "forget")) {
             state_count = 0;
             transition_count = 0;
-        //~ } else if (strcmp("", cmd)==0) {
+        //~ } else if (matches(cmd, "")) {
             //~ docmd
-        } else if (strcmp("speed", cmd)==0) {
+        } else if (matches(cmd, "speed")) {
             speed = strtol(token(), NULL, 10);
-        } else if (strcmp("echo", cmd)==0) {
+        } else if (matches(cmd, "echo")) {
             echo = !echo;
-        } else if (strcmp("reset", cmd)==0) {
+        } else if (matches(cmd, "reset")) {
             asm volatile ("  jmp 0");
         } else {
             // TODO: keep this updated!
-            printf("Invalid command. Try face, echo, speed, forget, reset.\r\n");
+            Serial.println(F("Invalid command. Try face, echo, speed, forget, reset."));
         }
     }
     faceAdvance();
+
     delay(speed);
+    //~ if (buttonPoll()) { // check takes 100ms unless pressed
+        //~ printf("Button pressed\r\n");
+    //~ }
 }
