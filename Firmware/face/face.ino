@@ -1,6 +1,10 @@
 /* Serial-controlled Face */
 
+using namespace std; // Let's not confuse chiptune.h
+
 #define debug true
+
+#include "chiptune.h"
 
 const int led_pins[16] = {8,A0,A2,A3,A1,6,5,11,13,9,A5,A4,4,7,10,12};
 const int button_pins[3] = {2,A6,A7};
@@ -242,6 +246,8 @@ void setup() {
         digitalWrite(led_pins[i], HIGH); // All off
         pinMode(led_pins[i], OUTPUT);
     }
+    
+    //~ chiptune_main(); // Timers conflict with serial communication
 
     /*/ Test segments
     int i=0;
@@ -282,6 +288,8 @@ void setup() {
     addTrans(eyes2, base, 5);
     addTrans(eyes1, base, 5);
     // */
+
+    asm("sei");
 }
 
 void loop() {
@@ -317,4 +325,12 @@ void loop() {
     //~ if (buttonPoll()) { // check takes 100ms unless pressed
         //~ printf("Button pressed\r\n");
     //~ }
+    // Sound
+    //~ for(;;) {
+        //~ while(!timetoplay);
+        //~ timetoplay--;
+            //~ // 50Hz
+        //~ playroutine();
+    //~ }
+
 }
